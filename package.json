@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "puppeteer": "^19.2.2"
+  },
+  "scripts": {
+    "start": "node scrap.js"
+  }
+}
