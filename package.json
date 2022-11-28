@@ -1,7 +1,8 @@
 {
   "dependencies": {
     "js-beautify": "^1.14.7",
-    "puppeteer": "^19.2.2"
+    "puppeteer": "^19.2.2",
+    "simple-eta": "^3.0.2"
   },
   "scripts": {
     "start": "node scrap.js"

@@ -1,14 +1,34 @@
 const puppeteer = require('puppeteer');
 const {writeFile} = require("fs");
 const {js: beautify} = require('js-beautify');
-let browser;
+const makeEta = require('simple-eta');
 
+let page;
+
+function RGBToHex(rgb) {
+    // Choose correct separator
+    let sep = rgb.indexOf(",") > -1 ? "," : " ";
+    // Turn "rgb(r,g,b)" into [r,g,b]
+    rgb = rgb.substring(4).split(")")[0].split(sep);
+
+    let r = (+rgb[0]).toString(16),
+        g = (+rgb[1]).toString(16),
+        b = (+rgb[2]).toString(16);
+
+    if (r.length === 1)
+        r = "0" + r;
+    if (g.length === 1)
+        g = "0" + g;
+    if (b.length === 1)
+        b = "0" + b;
+
+    return "#" + r + g + b;
+}
 
 /**
- * @returns {Promise<{stops: {id: string, name: string}[], routes: {id: string}[]}>}
+ * @returns {Promise<{stops: {id: string, name: string}[], routes: {routeId: string, color: string}[]}>}
  */
 async function getStops() {
-    const page = await browser.newPage();
     await page.goto('https://vozniredi.marprom.si/');
 
     const stops = await page.evaluate(() => {
@@ -19,18 +39,18 @@ async function getStops() {
         });
     });
 
-    const routes = await page.evaluate(() => {
-        return [...document.querySelectorAll("#id_route label input")].map(input => {
-            const id = input.value;
-            return {id};
+    const routes = (await page.evaluate(() => {
+        return [...document.querySelectorAll("#id_route label")].map(label => {
+            const routeId = label.querySelector("input").value;
+            const color = window.getComputedStyle(label.querySelector("span")).backgroundColor;
+            return {routeId, color};
         });
-    });
+    })).map(route => ({...route, color: RGBToHex(route.color)}));
 
     return {stops, routes};
 }
 
 async function getStop(stop) {
-    const page = await browser.newPage();
     await page.goto(`https://vozniredi.marprom.si/?stop=${stop.id}`);
 
     const coordinates = await page.evaluate(() => {
@@ -57,16 +77,15 @@ async function getStop(stop) {
                 return {id, lines};
             });
     });
-    return {...stop, routes, ...coordinates};
+    return {...stop, routes, coordinates};
 }
 
 /**
- * @param {{id: string}} route
- * @returns {Promise<{routeId: string, polyline: {lat: number, lng: number}[][]}>}
+ * @param {{routeId: string, color: string}} route
+ * @returns {Promise<{routeId: string, color: string, polyline: {lat: number, lng: number}[][]}>}
  */
 async function getPolyline(route) {
-    const page = await browser.newPage();
-    await page.goto(`https://vozniredi.marprom.si/?route=${route.id}`);
+    await page.goto(`https://vozniredi.marprom.si/?route=${route.routeId}`);
 
     const code = await page.evaluate(() => {
         return [...document.querySelectorAll("script")]
@@ -83,26 +102,33 @@ async function getPolyline(route) {
                 .map(match => (/** @type {{lat: number, lng: number}} */{lat: +match[1], lng: +match[2]})))
 
 
-    return {routeId: route.id, polyline};
+    return {...route, polyline};
 }
 
 async function main() {
-    browser = await puppeteer.launch();
+    const browser = await puppeteer.launch();
+    page = await browser.newPage();
+
     const {stops, routes} = await getStops();
+    const eta = makeEta({ min: 0, max: stops.length + routes.length });
 
     const timetables = [];
     for (let [index, stop] of stops.entries()) {
         timetables.push(await getStop(stop));
-        console.log(`${index + 1}/${stops.length} Done ${stop.id}`)
+        eta.report(index + 1);
+        console.log(`${index + 1}/${stops.length} ${Math.round(eta.estimate())}s left`)
     }
 
     const polylines = [];
     for (let [index, route] of routes.entries()) {
         polylines.push(await getPolyline(route))
-        console.log(`${index + 1}/${routes.length} Done ${route.id}`)
+        eta.report(stops.length + index + 1);
+        console.log(`${index + 1}/${routes.length} ${Math.round(eta.estimate())}s left`)
     }
 
-    writeFile("./timetable.json", JSON.stringify({timetable: timetables, polylines}, null, 2), () => {
+    writeFile("./timetable-formatted.json", JSON.stringify({timetable: timetables, polylines}, null, 2), () => {
+    });
+    writeFile("./timetable.json", JSON.stringify({timetable: timetables, polylines}), () => {
     });
 
     await browser.close();
