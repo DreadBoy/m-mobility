@@ -61,7 +61,6 @@ dependencies {
     implementation "androidx.datastore:datastore-preferences:1.0.0"
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.5.0'
-    implementation "com.google.accompanist:accompanist-pager:0.23.1"
     implementation "com.google.accompanist:accompanist-permissions:0.23.1"
     implementation 'com.google.maps.android:maps-compose:2.5.2'
     implementation 'com.google.android.gms:play-services-maps:18.0.2'

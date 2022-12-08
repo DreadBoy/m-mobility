@@ -8,12 +8,10 @@ import androidx.compose.material.Tab
 import androidx.compose.material.TabRow
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.launch
 
 
@@ -25,18 +23,18 @@ val tabs = listOf(
     TabItem("Zemljevid") { TimetableMap(it) },
 )
 
-@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun Timetable(vm: TimetableViewModel) {
-    val pagerState = rememberPagerState(0)
+    var selected by rememberSaveable { mutableStateOf(2) }
+
     val scope = rememberCoroutineScope()
     Column(Modifier.fillMaxSize()) {
-        TabRow(pagerState.currentPage) {
+        TabRow(selected) {
             tabs.forEachIndexed { index, tab ->
                 Tab(
-                    pagerState.currentPage == index,
+                    selected == index,
                     {
-                        scope.launch { pagerState.animateScrollToPage(index) }
+                        scope.launch { selected = index }
                     }
                 ) {
                     Text(
@@ -50,8 +48,6 @@ fun Timetable(vm: TimetableViewModel) {
             }
 
         }
-        HorizontalPager(tabs.size, state = pagerState) {
-            tabs[it].screen(vm)
-        }
+        tabs[selected].screen(vm)
     }
 }
