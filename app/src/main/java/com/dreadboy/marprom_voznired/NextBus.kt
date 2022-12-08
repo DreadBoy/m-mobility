@@ -21,12 +21,12 @@ fun NextBus(times: List<String>) {
     LaunchedEffect(Unit) {
         while (true) {
             delay(1.seconds)
-            now = LocalDateTime.now();
+            now = LocalDateTime.now()
         }
     }
 
-    val nextBus = findNextTime(now, times);
-    val duration = Duration.between(now, nextBus);
+    val nextBus = findNextTime(now, times)
+    val duration = Duration.between(now, nextBus)
 
     Row {
         Text(

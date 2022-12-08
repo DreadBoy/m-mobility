@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 fun Layout(content: @Composable BoxScope.() -> Unit) {
     Scaffold(
         topBar = {
-            TopAppBar({ Text("Postaje") }, backgroundColor = MaterialTheme.colors.primary)
+            TopAppBar({ Text("Marprom vozni red") }, backgroundColor = MaterialTheme.colors.primary)
         }) { contentPadding ->
         Box(modifier = Modifier.padding(contentPadding), content = content)
     }
