@@ -28,16 +28,17 @@ data class Line(
 
 data class RoutePolyline(
     val routeId: String,
-    val poyline: List<List<Coordinates>>,
+    var color: String,
+    val polyline: List<List<Coordinates>>,
 )
 
 data class Coordinates(
-    val lat: Float,
-    val lgn: Float,
+    val lat: Double,
+    val lng: Double,
 )
 
 interface TimetableService {
-    @GET("/DreadBoy/8452dbfaad0a0379a811a1b1b8ab011e/raw/5e4939104338a53196a7adc9d8653ef0623af653/marprom-data.json")
+    @GET("/DreadBoy/8452dbfaad0a0379a811a1b1b8ab011e/raw/a431a20836d55a43713b6ffcac2b81c34b301604/marprom-data.json")
     suspend fun getTimetable(): Timetable
 
     companion object {

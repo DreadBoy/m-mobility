@@ -22,6 +22,7 @@ class TabItem(var title: String, var screen: @Composable (vm: TimetableViewModel
 val tabs = listOf(
     TabItem("Priljubljene") { FavouriteStops(it) },
     TabItem("Vse postaje") { AllStops(it) },
+    TabItem("Zemljevid") { TimetableMap(it) },
 )
 
 @OptIn(ExperimentalPagerApi::class)
