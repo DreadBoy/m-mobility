@@ -19,13 +19,12 @@ class TabItem(var title: String, var screen: @Composable (vm: TimetableViewModel
 
 val tabs = listOf(
     TabItem("Priljubljene") { FavouriteStops(it) },
-    TabItem("Vse postaje") { AllStops(it) },
     TabItem("Zemljevid") { TimetableMap(it) },
 )
 
 @Composable
 fun Timetable(vm: TimetableViewModel) {
-    var selected by rememberSaveable { mutableStateOf(2) }
+    var selected by rememberSaveable { mutableStateOf(0) }
 
     val scope = rememberCoroutineScope()
     Column(Modifier.fillMaxSize()) {
