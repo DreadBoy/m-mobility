@@ -1,18 +1,19 @@
 package com.dreadboy.marprom_voznired
 
+import android.app.Application
 import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.activity.viewModels
+import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.mutableStateListOf
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.dreadboy.marprom_voznired.ui.theme.MarpromVozniRedTheme
 import kotlinx.coroutines.flow.Flow
@@ -24,14 +25,12 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore("vozni_red
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val vm = TimetableViewModel(this)
+        val vm by viewModels<TimetableViewModel>()
         setContent {
             MarpromVozniRedTheme {
                 Layout {
-                    TimetableLoader(vm) {
-                        Timetable(
-                            it
-                        )
+                    Column {
+                        Timetable(vm)
                     }
                 }
             }
@@ -39,31 +38,21 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Composable
-fun TimetableLoader(
-    vm: TimetableViewModel, content: @Composable (
-        vm: TimetableViewModel
-    ) -> Unit
-) {
-    LaunchedEffect(Unit) {
-        vm.getTimetable();
-    }
-
-    content(vm)
-}
-
-public class TimetableViewModel(context: Context) : ViewModel() {
+public class TimetableViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _stops = mutableStateListOf<Stop>()
     val stops: List<Stop>
         get() = _stops
 
     private val key = stringSetPreferencesKey("favouriteStops");
-    private val dataStore = context.dataStore;
-    val favouriteStops: Flow<List<String>> =
-        dataStore.data.map { it[key]?.toList() ?: listOf() }
+    private val dataStore = application.dataStore;
+    val favouriteStops: Flow<List<String>> = dataStore.data.map { it[key]?.toList() ?: listOf() }
 
-    fun getTimetable() {
+    init {
+        getTimetable();
+    }
+
+    private fun getTimetable() {
         viewModelScope.launch {
             val apiService = TimetableService.getInstance()
             _stops.clear()
