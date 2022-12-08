@@ -30,6 +30,7 @@ class MainActivity : ComponentActivity() {
             MarpromVozniRedTheme {
                 Layout {
                     Column {
+                        Favourites(vm)
                         Timetable(vm)
                     }
                 }

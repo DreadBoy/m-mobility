@@ -31,7 +31,8 @@ fun Timetable(
                         Text("Linija " + route.id, style = typography.body2)
                         Column {
                             route.lines.forEach { line ->
-                                val lineId = stop.id + route.id + line.name;
+                                val lineId =
+                                    listOf(stop.id, route.id, line.name).joinToString("\n");
                                 val isFavourite = favouriteStops.contains(lineId)
                                 Row(
                                     Modifier
@@ -44,15 +45,19 @@ fun Timetable(
                                         Modifier.weight(1f),
                                         style = typography.body2
                                     )
-                                    IconButton({
-                                        val newFavourites =
-                                            if (isFavourite)
-                                                favouriteStops.filter { lineId != it }
-                                            else
-                                                favouriteStops.plus(lineId)
-                                        vm.saveFavourites(newFavourites)
-                                    },
-                                    Modifier.height(24.dp).width(24.dp)) {
+                                    IconButton(
+                                        {
+                                            val newFavourites =
+                                                if (isFavourite)
+                                                    favouriteStops.filter { lineId != it }
+                                                else
+                                                    favouriteStops.plus(lineId)
+                                            vm.saveFavourites(newFavourites)
+                                        },
+                                        Modifier
+                                            .height(24.dp)
+                                            .width(24.dp)
+                                    ) {
                                         Icon(
                                             if (isFavourite)
                                                 Icons.Outlined.Favorite
