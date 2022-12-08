@@ -19,7 +19,7 @@ fun Stop(stop: Stop, vm: TimetableViewModel) {
     val typography = MaterialTheme.typography
 
     ExpandableListItem({ Text(stop.name) }) {
-        Column {
+        Column(Modifier.padding(top = 8.dp)) {
             stop.routes.forEach { route ->
                 Text("Linija " + route.id, style = typography.body2)
                 Column {
@@ -31,10 +31,10 @@ fun Stop(stop: Stop, vm: TimetableViewModel) {
                             Modifier
                                 .padding(top = 8.dp, bottom = 4.dp)
                                 .fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalAlignment = Alignment.Top
                         ) {
                             Text(
-                                line.name.trimStart(),
+                                line.name,
                                 Modifier.weight(1f),
                                 style = typography.body2
                             )

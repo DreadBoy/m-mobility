@@ -27,7 +27,7 @@ fun ExpandableListItem(
             text()
             IconButton({
                 expanded.value = !expanded.value
-            }) {
+            }, Modifier.height(24.dp).width(24.dp)) {
                 Icon(
                     if (expanded.value) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
                     null

@@ -27,7 +27,7 @@ fun FavouriteStop(lineId: String, vm: TimetableViewModel) {
         ) {
             Column(Modifier.padding(8.dp)) {
                 Text("Linija " + route.id + " - " + stop.name)
-                Text(line.name.trimStart(), style = MaterialTheme.typography.caption)
+                Text(line.name, style = MaterialTheme.typography.caption)
                 NextBus(line.times)
             }
         }

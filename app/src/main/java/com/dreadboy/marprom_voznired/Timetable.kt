@@ -15,6 +15,6 @@ fun Timetable(vm: TimetableViewModel) {
 
     LazyColumn(modifier = Modifier.fillMaxHeight()) {
         items(favouriteStops, key = { it }) { FavouriteStop(it, vm) }
-        items(stops, key = { it.id }) { Stop(it, vm) }
+        items(stops.sortedBy { it.name }, key = { it.id }) { Stop(it, vm) }
     }
 }
