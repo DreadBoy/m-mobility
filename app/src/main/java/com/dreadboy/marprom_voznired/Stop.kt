@@ -1,6 +1,8 @@
 package com.dreadboy.marprom_voznired
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Favorite
@@ -11,6 +13,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+
+@Composable
+fun AllStops(vm: TimetableViewModel) {
+    val stops = vm.timetable.collectAsState().value.timetable
+
+    LazyColumn(modifier = Modifier.fillMaxHeight()) {
+        items(stops.sortedBy { it.name }, key = { it.id }) { Stop(it, vm) }
+    }
+}
 
 @Composable
 fun Stop(stop: Stop, vm: TimetableViewModel) {
