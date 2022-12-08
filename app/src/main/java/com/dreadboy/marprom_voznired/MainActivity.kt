@@ -3,23 +3,21 @@ package com.dreadboy.marprom_voznired
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.runtime.*
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.dreadboy.marprom_voznired.ui.theme.MarpromVozniRedTheme
+import kotlinx.coroutines.launch
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val vm = TimetableViewModel();
         setContent {
             MarpromVozniRedTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    Greeting("Android")
+                Layout {
+                    TimetableLoader(vm) { Timetable(it) }
                 }
             }
         }
@@ -27,14 +25,30 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
+fun TimetableLoader(vm: TimetableViewModel, content: @Composable (stops: List<Stop>) -> Unit) {
+    LaunchedEffect(Unit) {
+        vm.getTimetable();
+    }
+
+    content(vm.stops)
 }
 
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    MarpromVozniRedTheme {
-        Greeting("Android")
+class TimetableViewModel : ViewModel() {
+    private val _stops = mutableStateListOf<Stop>()
+    var errorMessage: String by mutableStateOf("")
+    val stops: List<Stop>
+        get() = _stops
+
+    fun getTimetable() {
+        viewModelScope.launch {
+            val apiService = TimetableService.getInstance()
+            try {
+                _stops.clear()
+                _stops.addAll(apiService.getTimetable())
+
+            } catch (e: Exception) {
+                errorMessage = e.message.toString()
+            }
+        }
     }
 }
